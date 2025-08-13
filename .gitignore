@@ -1,0 +1,18 @@
+firebase_credentials.json
+
+# Ignorar archivos específicos
+.env
+*.log
+*.pyc
+firebase_credentials.json
+
+# Ignorar carpetas
+__pycache__/
+node_modules/
+dist/
+build/
+
+# Ignorar todo en una carpeta excepto algo
+data/*
+!data/README.md
+
