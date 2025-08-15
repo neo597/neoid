@@ -1,7 +1,7 @@
 
 import os
 import uuid
-from app.firebase import bucket
+from firebase import bucket
 
 def subir_audio(ruta_local: str, nombre_remoto: str = None) -> str:
     """
@@ -30,7 +30,7 @@ def subir_audio(ruta_local: str, nombre_remoto: str = None) -> str:
     except Exception as e:
         raise RuntimeError(f"❌ Error al subir el archivo a Firebase Storage: {e}")
     
-    
+
 # from app.firebase import bucket
 
 # def subir_audio(ruta_local: str, nombre_remoto: str) -> str:

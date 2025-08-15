@@ -1,4 +1,4 @@
-from app.firebase import db
+from firebase import db
 from app.models.neonato import NeonatoBase
 
 class NeonatoController:

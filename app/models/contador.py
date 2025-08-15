@@ -1,4 +1,4 @@
-from app.firebase import db
+from firebase import db
 
 class Contador:
     @staticmethod
