@@ -1,40 +1,62 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import uvicorn
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+from firebase import init_firebase
 
-# Importa tus routers y funciones de inicialización
-from routers import neonatos, madres, llantos
-from firebase_config import init_firebase  # Asegúrate de tener esta función definida
+from app.routes.neonato_routes import router as neonato_router
+from app.routes.madre_routes import router as madre_router
+from app.routes.llanto_routes import router as llanto_router
 
-# 🔄 Inicialización moderna con lifespan
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+# Cargar variables de entorno
+load_dotenv()
+
+app = FastAPI()
+
+# Configuración CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Puedes restringir esto en producción
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Rutas
+app.include_router(neonato_router)
+app.include_router(madre_router)
+app.include_router(llanto_router)
+
+@app.get("/")
+async def read_root():
+    return {"message": "Servidor funcionando correctamente"}
+
+@app.get("/ping")
+def ping():
+    return {"status": "ok"}
+
+@app.get("/health")
+def health_check():
+    return {"firebase": "ok" if os.getenv("FIREBASE_CREDENTIALS_PATH") else "missing"}
+
+# Inicialización en startup con manejo de errores
+@app.on_event("startup")
+def startup_event():
     try:
         init_firebase()
         print("✅ Firebase inicializado correctamente")
     except Exception as e:
         print(f"⚠️ Error al inicializar Firebase: {e}")
-    yield
-    # Aquí podrías cerrar conexiones si lo necesitas
 
-# 🚀 Instancia principal de FastAPI
-app = FastAPI(lifespan=lifespan)
+    print("\n🔗 Rutas activas en la API:")
+    for r in app.routes:
+        print(f"→ {r.path} : {r.methods}")
 
-# 📦 Registro de routers
-app.include_router(neonatos.router)
-app.include_router(madres.router)
-app.include_router(llantos.router)
-
-# 🩺 Endpoint de salud para Render
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-# 🏁 Arranque del servidor (compatible con Render)
+# Ejecución local o en Render
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
 
 
 
