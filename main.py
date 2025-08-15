@@ -2,20 +2,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uvicorn
-from firebase import init_firebase  
 from dotenv import load_dotenv
-load_dotenv()
+from firebase import init_firebase
 
 from app.routes.neonato_routes import router as neonato_router
 from app.routes.madre_routes import router as madre_router
 from app.routes.llanto_routes import router as llanto_router
 
+# Cargar variables de entorno
+load_dotenv()
+
 app = FastAPI()
 
-# CORS
+# Configuración CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Puedes restringir esto en producción
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,11 +36,20 @@ async def read_root():
 def ping():
     return {"status": "ok"}
 
-# Inicialización en startup
+@app.get("/health")
+def health_check():
+    return {"firebase": "ok" if os.getenv("FIREBASE_CREDENTIALS_PATH") else "missing"}
+
+# Inicialización en startup con manejo de errores
 @app.on_event("startup")
 def startup_event():
-    init_firebase()
-    print("\nRutas activas en la API:")
+    try:
+        init_firebase()
+        print("✅ Firebase inicializado correctamente")
+    except Exception as e:
+        print(f"⚠️ Error al inicializar Firebase: {e}")
+
+    print("\n🔗 Rutas activas en la API:")
     for r in app.routes:
         print(f"→ {r.path} : {r.methods}")
 
