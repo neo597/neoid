@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from pyzbar.pyzbar import decode
 from PIL import Image
 import io
+from firebase import db
 
 router = APIRouter(prefix="/scan", tags=["QR / Barcode"])
 

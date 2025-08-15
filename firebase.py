@@ -1,5 +1,6 @@
-# firebase.py
-import os, json, firebase_admin
+import os
+import json
+import firebase_admin
 from firebase_admin import credentials, firestore, storage
 
 db = None
@@ -7,14 +8,13 @@ bucket = None
 
 def init_firebase():
     global db, bucket
-    cred_data = os.environ.get("FIREBASE_CREDENTIALS_JSON")
-    if not cred_data:
-        raise RuntimeError("Credenciales no encontradas")
 
-    if "\\n" in cred_data:
-        cred_data = cred_data.replace("\\n", "\n")
+    cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH")
+    if not cred_path or not os.path.exists(cred_path):
+        raise RuntimeError(f"❌ No se encontró el archivo de credenciales en: {cred_path}")
 
-    cred_dict = json.loads(cred_data)
+    with open(cred_path, "r", encoding="utf-8") as f:
+        cred_dict = json.load(f)
 
     if not firebase_admin._apps:
         cred = credentials.Certificate(cred_dict)
@@ -24,8 +24,6 @@ def init_firebase():
 
     db = firestore.client()
     bucket = storage.bucket()
-
-
 
 
 

@@ -1,4 +1,4 @@
-from app.firebase import db
+from firebase import db
 from app.models.llanto import LlantoBase
 from app.utils.contador import Contador  # Importa el contador
 

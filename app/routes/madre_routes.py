@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.controllers.madre_controller import MadreController
 from app.models.madre import MadreBase
-
+from firebase import db
 router = APIRouter(prefix="/madres", tags=["Madres"])
 
 @router.get("/")

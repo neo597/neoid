@@ -2,16 +2,20 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uvicorn
+from firebase import init_firebase  
+from dotenv import load_dotenv
+load_dotenv()
+
 from app.routes.neonato_routes import router as neonato_router
 from app.routes.madre_routes import router as madre_router
 from app.routes.llanto_routes import router as llanto_router
 
 app = FastAPI()
 
-# Configuración CORS
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cambiar a dominios específicos para más seguridad
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,19 +30,19 @@ app.include_router(llanto_router)
 async def read_root():
     return {"message": "Servidor funcionando correctamente"}
 
-# Mostrar rutas activas al iniciar
-@app.on_event("startup")
-def listar_rutas():
-    print("\nRutas activas en la API:")
-    for r in app.routes:
-        print(f"→ {r.path} : {r.methods}")
-
 @app.get("/ping")
 def ping():
     return {"status": "ok"}
 
+# Inicialización en startup
+@app.on_event("startup")
+def startup_event():
+    init_firebase()
+    print("\nRutas activas en la API:")
+    for r in app.routes:
+        print(f"→ {r.path} : {r.methods}")
 
-# Ejecución en Render
+# Ejecución local o en Render
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
