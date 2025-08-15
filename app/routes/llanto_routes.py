@@ -3,7 +3,7 @@ from datetime import datetime
 from app.controllers.llanto_controller import LlantoController
 from app.models.llanto import LlantoBase
 from app.utils.storage import subir_audio
-from firebase import db
+from app.firebase import db
 import os
 
 router = APIRouter(prefix="/llantos", tags=["Llantos"])
