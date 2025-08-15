@@ -1,4 +1,4 @@
-from firebase import bucket
+from app.firebase import bucket
 
 def subir_audio(ruta_local: str, nombre_remoto: str) -> str:
     blob = bucket.blob(f"llantos/{nombre_remoto}")
