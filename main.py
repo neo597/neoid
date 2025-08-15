@@ -33,6 +33,11 @@ def listar_rutas():
     for r in app.routes:
         print(f"→ {r.path} : {r.methods}")
 
+@app.get("/ping")
+def ping():
+    return {"status": "ok"}
+
+
 # Ejecución en Render
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
