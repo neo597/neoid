@@ -5,14 +5,12 @@ from firebase_admin import credentials, firestore, storage
 import traceback
 
 try:
-    # 1️⃣ Intentar obtener credenciales desde variable de entorno (Render u otros servidores)
+    # 1️⃣ Intentar obtener credenciales desde variable de entorno
     cred_data = os.environ.get("FIREBASE_CREDENTIALS_JSON")
 
     # 2️⃣ Si no existe la variable, intentar cargar desde archivo local
     if not cred_data:
-        local_path = os.path.join(os.path.dirname(__file__), "..", "firebase_credentials.json")
-        local_path = os.path.abspath(local_path)
-
+        local_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "firebase_credentials.json"))
         if os.path.exists(local_path):
             print(f"🔹 Cargando credenciales de Firebase desde archivo local: {local_path}")
             with open(local_path, "r", encoding="utf-8") as f:
@@ -23,27 +21,30 @@ try:
                 "Agrega la variable FIREBASE_CREDENTIALS_JSON en Render o el archivo firebase_credentials.json en local."
             )
 
-    # 3️⃣ Convertir string JSON a diccionario
+    # 3️⃣ Corrige saltos de línea si vienen escapados
+    if "\\n" in cred_data:
+        cred_data = cred_data.replace("\\n", "\n")
+
+    # 4️⃣ Convertir string JSON a diccionario
     try:
         cred_dict = json.loads(cred_data)
     except json.JSONDecodeError as e:
         raise ValueError(f"❌ Las credenciales de Firebase no son un JSON válido: {e}")
 
-    # 4️⃣ Inicializar Firebase solo si no está inicializado
+    # 5️⃣ Inicializar Firebase solo si no está inicializado
     if not firebase_admin._apps:
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(
             cred,
             {
-                # Configura automáticamente el bucket de Storage
                 "storageBucket": f"{cred_dict['project_id']}.appspot.com"
             }
         )
         print("✅ Firebase inicializado correctamente")
 
-    # 5️⃣ Clientes listos para usar en toda la app
-    db = firestore.client()      # Firestore
-    bucket = storage.bucket()    # Storage
+    # 6️⃣ Clientes listos para usar en toda la app
+    db = firestore.client()
+    bucket = storage.bucket()
 
 except Exception as e:
     print("🔥 Error inicializando Firebase:", e)
