@@ -1,7 +1,7 @@
 
 import os
 import uuid
-from firebase import bucket
+from firebase import get_bucket
 
 def subir_audio(ruta_local: str, nombre_remoto: str = None) -> str:
     """
@@ -20,7 +20,7 @@ def subir_audio(ruta_local: str, nombre_remoto: str = None) -> str:
         nombre_remoto = f"{uuid.uuid4()}.mp3"  # Puedes cambiar la extensión según tu tipo de archivo
 
     # Crear referencia en Storage dentro de la carpeta "llantos"
-    blob = bucket.blob(f"llantos/{nombre_remoto}")
+    blob = get_bucket.blob(f"llantos/{nombre_remoto}")
 
     try:
         blob.upload_from_filename(ruta_local)

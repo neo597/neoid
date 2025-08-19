@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.controllers.neonato_controller import NeonatoController
 from app.models.neonato import NeonatoBase
-from firebase import db
+from firebase import get_firestore
 
 router = APIRouter(prefix="/neonatos", tags=["Neonatos"])
 

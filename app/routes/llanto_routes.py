@@ -3,7 +3,7 @@ from datetime import datetime
 from app.controllers.llanto_controller import LlantoController
 from app.models.llanto import LlantoBase
 from app.utils.storage import subir_audio
-from firebase import db
+from firebase import get_firestore
 import os
 
 router = APIRouter(prefix="/llantos", tags=["Llantos"])
@@ -44,7 +44,7 @@ async def subir_llanto(id_neonato: str = Form(...), archivo: UploadFile = File(.
         "fecha": datetime.now()
     }
 
-    ref = db.collection("llantos").document(nuevo_llanto["id_llanto"])
+    ref = get_firestore.collection("llantos").document(nuevo_llanto["id_llanto"])
     ref.set(nuevo_llanto)
 
     return {"message": "Llanto subido correctamente", "url": url_audio}
