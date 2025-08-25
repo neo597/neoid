@@ -5,6 +5,7 @@ env
 *.log
 *.pyc
 firebase_credentials.json
+firebase_render_ready.json
 
 # Ignorar carpetas
 __pycache__/
