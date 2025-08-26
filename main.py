@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
-import uvicorn
 from dotenv import load_dotenv
 from firebase import init_firebase, get_firestore
 
@@ -53,11 +52,12 @@ def startup_event():
         print(f"⚠️ Error al inicializar Firebase: {e}")
 
 
-# 👉 Bloque final corregido para Render
+# Este bloque es solo para correr localmente
 if __name__ == "__main__":
-    # Render ya pasa el puerto en la variable de entorno $PORT
-    # No hace falta añadir host ni port manualmente
-    uvicorn.run("main:app")
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+
 
 
 
