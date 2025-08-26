@@ -14,6 +14,7 @@ dist/
 build/
 
 
+
 # Ignorar todo en una carpeta excepto algo
 data/*
 !data/README.md
