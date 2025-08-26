@@ -38,7 +38,7 @@ def ping():
 def health_check():
     try:
         db = get_firestore()
-        docs = db.collections()  # 👈 Forzar consulta
+        docs = db.collections()  #  Forzar consulta
         return {"firebase": "ok"}
     except Exception as e:
         return {"firebase": "error", "detail": str(e)}
