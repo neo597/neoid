@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import os
 from dotenv import load_dotenv
 from firebase import init_firebase, get_firestore
+import uvicorn
 
 from app.routes.neonato_routes import router as neonato_router
 from app.routes.madre_routes import router as madre_router
@@ -54,11 +55,14 @@ def startup_event():
     except Exception as e:
         print(f"⚠️ Error al inicializar Firebase: {e}")
 
+
+
+
 # Solo para correr localmente con: python main.py
 if __name__ == "__main__":
-    import uvicorn
+    
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
 
 
 
