@@ -8,8 +8,10 @@ from app.routes.neonato_routes import router as neonato_router
 from app.routes.madre_routes import router as madre_router
 from app.routes.llanto_routes import router as llanto_router
 
+# Cargar variables de entorno
 load_dotenv()
 
+# Inicializar FastAPI
 app = FastAPI()
 
 # CORS
@@ -38,11 +40,12 @@ def ping():
 def health_check():
     try:
         db = get_firestore()
-        docs = db.collections()  #  Forzar consulta
+        docs = db.collections()  # Forzar consulta para probar conexión
         return {"firebase": "ok"}
     except Exception as e:
         return {"firebase": "error", "detail": str(e)}
 
+# Evento de inicio
 @app.on_event("startup")
 def startup_event():
     try:
@@ -51,12 +54,12 @@ def startup_event():
     except Exception as e:
         print(f"⚠️ Error al inicializar Firebase: {e}")
 
-
-# Este bloque es solo para correr localmente
+# Solo para correr localmente con: python main.py
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
 
 
 
