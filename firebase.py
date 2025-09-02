@@ -4,7 +4,6 @@ import firebase_admin
 from firebase_admin import credentials, firestore, storage
 from dotenv import load_dotenv
 
-# Cargar variables desde .env (solo local)
 load_dotenv()
 
 _db = None
@@ -13,25 +12,24 @@ _bucket = None
 def init_firebase():
     global _db, _bucket
 
-    # 1️⃣ Intentar primero con variable FIREBASE_CREDENTIALS (Render)
-    cred_json = os.getenv("FIREBASE_CREDENTIALS")
-    cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH")
+    # 🔹 Primero probamos con la variable de entorno FIREBASE_CREDENTIALS
+    creds_json = os.getenv("FIREBASE_CREDENTIALS")
 
-    if cred_json:
-        try:
-            cred_dict = json.loads(cred_json)
-            print("🔹 Usando credenciales desde FIREBASE_CREDENTIALS (Render)")
-        except json.JSONDecodeError:
-            raise RuntimeError("❌ Error: FIREBASE_CREDENTIALS no es un JSON válido")
-    elif cred_path and os.path.exists(cred_path):
-        # 2️⃣ Si no existe, usar archivo local
-        print(f"🔹 Usando credenciales desde archivo local: {cred_path}")
+    # 🔹 Si no existe, usamos el archivo local
+    if not creds_json:
+        cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH")
+        if not cred_path or not os.path.exists(cred_path):
+            raise RuntimeError("❌ No se encontró la variable FIREBASE_CREDENTIALS ni el archivo local.")
         with open(cred_path, "r", encoding="utf-8") as f:
-            cred_dict = json.load(f)
-    else:
-        raise RuntimeError("❌ No se encontró la variable FIREBASE_CREDENTIALS ni el archivo FIREBASE_CREDENTIALS_PATH")
+            creds_json = f.read()
 
-    # Inicializar Firebase si no está ya inicializado
+    # Cargar JSON
+    try:
+        cred_dict = json.loads(creds_json)
+    except Exception as e:
+        raise RuntimeError(f"❌ Error al leer credenciales Firebase: {e}")
+
+    # Inicializar Firebase si no está inicializado
     if not firebase_admin._apps:
         cred = credentials.Certificate(cred_dict)
         firebase_admin.initialize_app(cred, {
@@ -50,6 +48,7 @@ def get_bucket():
     if _bucket is None:
         raise RuntimeError("Storage no está inicializado. Llama init_firebase() primero.")
     return _bucket
+
 
 # import os
 # import json
