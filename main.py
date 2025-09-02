@@ -4,12 +4,13 @@ import os
 from dotenv import load_dotenv
 from firebase import init_firebase, get_firestore, get_bucket
 import uvicorn
+from fastapi import APIRouter
 
 from app.routes.neonato_routes import router as neonato_router
 from app.routes.madre_routes import router as madre_router
 from app.routes.llanto_routes import router as llanto_router
 
-# Cargar variables de entorno (.env en local)
+# Cargar variables de entorno (local)
 load_dotenv()
 
 # Inicializar FastAPI
@@ -24,30 +25,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rutas principales
-app.include_router(neonato_router)
-app.include_router(madre_router)
-app.include_router(llanto_router)
+# --- Rutas de prueba con prefijo /test ---
+test_router = APIRouter(prefix="/test", tags=["Test"])
 
-@app.get("/")
-async def read_root():
-    return {"message": "Servidor funcionando correctamente"}
+@test_router.get("/")
+def test_root():
+    return {"message": "Servidor funcionando correctamente con /test"}
 
-@app.get("/ping")
-def ping():
-    return {"status": "ok"}
-
-@app.get("/health")
-def health_check():
-    try:
-        db = get_firestore()
-        collections = [col.id for col in db.collections()]
-        return {"firebase": "ok", "collections": collections}
-    except Exception as e:
-        return {"firebase": "error", "detail": str(e)}
-
-# Rutas de prueba Firebase
-@app.get("/test/firestore")
+@test_router.get("/firestore")
 def test_firestore():
     try:
         db = get_firestore()
@@ -56,7 +41,7 @@ def test_firestore():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
-@app.get("/test/storage")
+@test_router.get("/storage")
 def test_storage():
     try:
         bucket = get_bucket()
@@ -66,7 +51,25 @@ def test_storage():
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
-# Evento de inicio para inicializar Firebase
+# Agregar router de pruebas
+app.include_router(test_router)
+
+# Rutas principales
+app.include_router(neonato_router)
+app.include_router(madre_router)
+app.include_router(llanto_router)
+
+# Health check
+@app.get("/health")
+def health_check():
+    try:
+        db = get_firestore()
+        collections = [col.id for col in db.collections()]
+        return {"firebase": "ok", "collections": collections}
+    except Exception as e:
+        return {"firebase": "error", "detail": str(e)}
+
+# Evento de inicio
 @app.on_event("startup")
 def startup_event():
     try:
@@ -75,10 +78,11 @@ def startup_event():
     except Exception as e:
         print(f"⚠️ Error al inicializar Firebase: {e}")
 
-# Solo para correr localmente con: python main.py
+# Solo para correr local
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+
 
 
 
